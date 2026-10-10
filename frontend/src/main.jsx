@@ -4,8 +4,8 @@ import { createClient } from "genlayer-js";
 import { studioDevnet } from "genlayer-js/chains";
 import { createTransactionKit } from "@genlayer/transaction-kit";
 import { GenLayerTransactionPanel } from "@genlayer/transaction-kit-react";
-import { ArrowDown, ArrowUp, BadgeCheck, Box, Check, ChevronRight, Clipboard, ExternalLink, Eye, EyeOff, FileKey2, Gavel, KeyRound, LoaderCircle, Lock, PackageCheck, ScanSearch, Shield, Sparkles, Users, Wallet, X } from "lucide-react";
-import { clean, commitmentPayload, moveRanking, phaseCopy, sha256Hex, short } from "./model.mjs";
+import { ArrowDown, ArrowUp, BadgeCheck, Box, Check, ChevronRight, Clipboard, Download, ExternalLink, Eye, EyeOff, FileKey2, Gavel, KeyRound, LoaderCircle, Lock, PackageCheck, ScanSearch, Shield, Sparkles, Upload, Users, Wallet, X } from "lucide-react";
+import { clean, commitmentPayload, moveRanking, parseRecoveryTicket, phaseCopy, recoveryStorageKey, sha256Hex, short } from "./model.mjs";
 import "./styles.css";
 import "./font-fallbacks.css";
 
@@ -30,6 +30,7 @@ function App() {
   const [ranking, setRanking] = useState(DEMO.screening.admitted);
   const [salt, setSalt] = useState(randomSalt());
   const [sealed, setSealed] = useState("");
+  const [importText, setImportText] = useState("");
   const [wallet, setWallet] = useState("");
   const [action, setAction] = useState(null);
   const [notice, setNotice] = useState("");
@@ -75,6 +76,39 @@ function App() {
   const isOwner = wallet && wallet.toLowerCase() === record?.owner;
   const isJuror = wallet && record?.jurors?.includes(wallet.toLowerCase());
   const recovery = JSON.stringify({ round_id: roundId, ranking, salt, commitment: sealed || "create the commitment first" }, null, 2);
+  const recoveryKey = wallet && roundId.trim() ? recoveryStorageKey(CHAIN_ID, ADDRESS, roundId.trim(), wallet) : "";
+
+  useEffect(() => {
+    if (!recoveryKey || record?.id !== roundId.trim() || admitted.length === 0) return;
+    const saved = localStorage.getItem(recoveryKey);
+    if (!saved) return;
+    try {
+      const ticket = parseRecoveryTicket(saved, roundId.trim(), admitted);
+      setRanking(ticket.ranking); setSalt(ticket.salt); setSealed(ticket.commitment);
+      setNotice("Recovery ticket restored from this browser.");
+    } catch { localStorage.removeItem(recoveryKey); }
+  }, [recoveryKey, record?.id, roundId, admitted.join(",")]);
+
+  useEffect(() => {
+    if (recoveryKey && sealed && record?.id === roundId.trim()) localStorage.setItem(recoveryKey, recovery);
+  }, [recoveryKey, recovery, sealed, record?.id, roundId]);
+
+  async function importRecovery() {
+    try {
+      const ticket = parseRecoveryTicket(importText, roundId.trim(), admitted);
+      const digest = await sha256Hex(commitmentPayload(ticket.round_id, ticket.ranking, ticket.salt));
+      if (digest !== ticket.commitment) throw new Error("Recovery ticket does not match its commitment.");
+      setRanking(ticket.ranking); setSalt(ticket.salt); setSealed(ticket.commitment);
+      if (recoveryKey) localStorage.setItem(recoveryKey, JSON.stringify(ticket));
+      setImportText(""); setNotice("Recovery ticket imported and verified.");
+    } catch (error) { setNotice(error?.message || "Recovery ticket could not be imported."); }
+  }
+
+  function downloadRecovery() {
+    if (!sealed) return;
+    const url = URL.createObjectURL(new Blob([recovery], { type: "application/json" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `blindbatch-${roundId}-recovery.json`; anchor.click(); URL.revokeObjectURL(url);
+  }
 
   return <div className="app">
     <header><a href="#top" className="logo"><Box/><b>BLIND<span>BATCH</span></b></a><div className="live"><i/>STUDIO NEXT / {CHAIN_ID}</div><button onClick={connect} className="connect"><Wallet size={15}/>{wallet ? short(wallet) : "ENTER JURY ROOM"}</button></header>
@@ -94,7 +128,7 @@ function App() {
           <aside className="jury"><div className="section-head"><span><Users/> JURY RING</span><small>ODD / INDEPENDENT</small></div><div className="jurors">{record?.jurors?.map((juror,index) => <div key={juror} className={record.commitments?.[juror] ? "sealed" : record.reveals?.[juror] ? "revealed" : ""}><span>J{index + 1}</span><code>{short(juror)}</code>{record.reveals?.[juror] ? <Eye/> : record.commitments?.[juror] ? <Lock/> : <EyeOff/>}</div>)}</div><div className="jury-rule"><Gavel/><p>All jurors seal before reveal. A strict majority may certify; missing reveals cannot rewrite submitted ballots.</p></div>{isOwner && record?.status === "COMMIT" && <button onClick={() => write("close")}><KeyRound/> OPEN REVEAL CHAMBER</button>}</aside>
         </div>
 
-        {admitted.length > 0 && <section className="ballot"><div className="ballot-head"><div><small>YOUR ORDER</small><h3>Build the sealed ranking</h3></div><div><EyeOff/><span>Ranking stays hidden until reveal.</span></div></div><ol>{ranking.map((proposalId,index) => { const proposal = record.proposals.find(item => item.id === proposalId); return <li key={proposalId}><span>{index + 1}</span><div><b>{proposal?.title || proposalId}</b><small>{proposalId}</small></div><div><button disabled={index === 0} onClick={() => setRanking(items => moveRanking(items,index,-1))}><ArrowUp/></button><button disabled={index === ranking.length - 1} onClick={() => setRanking(items => moveRanking(items,index,1))}><ArrowDown/></button></div></li>})}</ol><div className="secret"><label>PRIVATE RECOVERY SALT<input value={salt} onChange={e => setSalt(e.target.value)}/></label><button className="seal-button" disabled={!isJuror || record.status !== "COMMIT"} onClick={() => void prepareCommit()}><Lock/> SEAL MY RANKING</button><button disabled={!isJuror || record.status !== "REVEAL"} onClick={() => write("reveal")}><Eye/> REVEAL MY RANKING</button></div><div className="recovery"><FileKey2/><div><b>RECOVERY TICKET</b><p>Save this privately before leaving. Losing the salt makes the commitment impossible to reveal.</p></div><textarea readOnly value={recovery}/><button onClick={() => navigator.clipboard?.writeText(recovery)}><Clipboard/> COPY</button></div></section>}
+        {admitted.length > 0 && <section className="ballot"><div className="ballot-head"><div><small>YOUR ORDER</small><h3>Build the sealed ranking</h3></div><div><EyeOff/><span>Ranking stays hidden until reveal.</span></div></div><ol>{ranking.map((proposalId,index) => { const proposal = record.proposals.find(item => item.id === proposalId); return <li key={proposalId}><span>{index + 1}</span><div><b>{proposal?.title || proposalId}</b><small>{proposalId}</small></div><div><button disabled={index === 0} onClick={() => setRanking(items => moveRanking(items,index,-1))}><ArrowUp/></button><button disabled={index === ranking.length - 1} onClick={() => setRanking(items => moveRanking(items,index,1))}><ArrowDown/></button></div></li>})}</ol><div className="secret"><label>PRIVATE RECOVERY SALT<input value={salt} onChange={e => setSalt(e.target.value)}/></label><button className="seal-button" disabled={!isJuror || record.status !== "COMMIT"} onClick={() => void prepareCommit()}><Lock/> SEAL MY RANKING</button><button disabled={!isJuror || record.status !== "REVEAL"} onClick={() => write("reveal")}><Eye/> REVEAL MY RANKING</button></div><div className="recovery"><FileKey2/><div><b>RECOVERY TICKET</b><p>Saved automatically in this browser after sealing. Copy or download it for portable recovery.</p></div><textarea readOnly value={recovery}/><div className="recovery-actions"><button disabled={!sealed} onClick={() => navigator.clipboard?.writeText(recovery)}><Clipboard/> COPY</button><button disabled={!sealed} onClick={downloadRecovery}><Download/> DOWNLOAD</button></div><div className="recovery-import"><textarea placeholder="Paste a recovery ticket to restore ranking, salt, and commitment" value={importText} onChange={event => setImportText(event.target.value)}/><button disabled={!importText.trim()} onClick={() => void importRecovery()}><Upload/> IMPORT</button></div></div></section>}
 
         {record?.status === "REVEAL" && <button className="certify" onClick={() => write("finalize")}><BadgeCheck/> CERTIFY WHEN QUORUM IS READY</button>}
         {record?.status === "FINAL" && <section className="winner"><div><BadgeCheck/><span>CERTIFIED WINNER</span></div><h2>{record.result?.winner}</h2><p>{record.result?.reveals_counted} revealed ballots counted · quorum {record.result?.quorum}</p></section>}

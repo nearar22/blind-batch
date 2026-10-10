@@ -16,7 +16,7 @@ Eligibility requirements live in prose and proposals express the same facts diff
 
 ## Recovery rule
 
-The private salt and exact ranking are required to reveal a ballot. The frontend creates a recovery ticket for the juror to save before leaving. Secrets are never written to contract state during the commit phase.
+The private salt and exact ranking are required to reveal a ballot. After sealing, the frontend saves the recovery ticket locally under the exact chain, contract, round, and wallet identity. Jurors can copy or download the ticket, import it in another browser, and verify that its ranking and salt reproduce the stored commitment. Secrets are never written to contract state during the commit phase.
 
 ## Safety boundary
 

@@ -18,3 +18,18 @@ export function moveRanking(items, index, offset) {
   return out;
 }
 export const phaseCopy = status => ({ OPEN: "Validator screening", COMMIT: "Ballots are sealed", REVEAL: "Reveal chamber open", FINAL: "Ranking certified" }[status] || "Round unavailable");
+
+export const recoveryStorageKey = (chainId, contract, roundId, wallet) =>
+  `blindbatch:recovery:${chainId}:${contract.toLowerCase()}:${roundId}:${wallet.toLowerCase()}`;
+
+export function parseRecoveryTicket(raw, expectedRoundId, admitted) {
+  const ticket = JSON.parse(raw);
+  if (ticket?.round_id !== expectedRoundId) throw new Error("Recovery ticket belongs to a different round.");
+  if (!Array.isArray(ticket.ranking) || ticket.ranking.length !== admitted.length) throw new Error("Recovery ranking is incomplete.");
+  const expected = [...admitted].sort();
+  const received = [...ticket.ranking].sort();
+  if (new Set(ticket.ranking).size !== ticket.ranking.length || expected.some((id, index) => id !== received[index])) throw new Error("Recovery ranking does not match the admitted batch.");
+  if (typeof ticket.salt !== "string" || ticket.salt.length < 16) throw new Error("Recovery salt is invalid.");
+  if (typeof ticket.commitment !== "string" || !/^[0-9a-f]{64}$/i.test(ticket.commitment)) throw new Error("Recovery commitment is invalid.");
+  return { round_id: ticket.round_id, ranking: [...ticket.ranking], salt: ticket.salt, commitment: ticket.commitment.toLowerCase() };
+}

@@ -42,8 +42,8 @@ The frontend targets GenLayer Studio Next, chain `61997`. Copy `frontend/.env.ex
 - App: [blind-batch.pages.dev](https://blind-batch.pages.dev)
 - Contract: [`0xa54f...0F41`](https://explorer-studio-dev.genlayer.com/address/0xa54f3AD3dDfCce094DD3bC2144070e5a7A6d0F41)
 - Deployment: [`0xf25d...67e3`](https://explorer-studio-dev.genlayer.com/tx/0xf25dd253357ab44a4c4f9a457ae5d930d2fb7bd260e5b1b217273263ea4067e3)
-- Live round creation: [`0xada0...95ab`](https://explorer-studio-dev.genlayer.com/tx/0xada08b3df79820110257d68c7f87121da4d2ee776e06aa25bd1e95a8abca95ab)
-- Validator screening: [`0xd31c...9e5d`](https://explorer-studio-dev.genlayer.com/tx/0xd31c81a83d929549c2aaf26b46384a01dbef14eb5a2bd0f7ba68befc5e199e5d), finalized in `COMMIT` with both proposals admitted
+- Live round creation: [`0xdd63...ac6a`](https://explorer-studio-dev.genlayer.com/tx/0xdd6304dcbbd7badf32442a42747d6a9ec53aceaee4adde788f24e243050dac6a)
+- Validator screening: [`0x595a...9e4d`](https://explorer-studio-dev.genlayer.com/tx/0x595abdce94284a1b0963548d63162c0180668ab36c5ea8bb90f4f2edc8be9e4d), finalized in `COMMIT` with both proposals admitted
 - Deployed and repository source SHA-256: `4ccfb93929a0342dded6aa5ff10c5d3d1693cd71e31fddf467322bd7ada98868`
 
 The complete machine-readable record is in `deployment.json`.

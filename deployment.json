@@ -5,14 +5,14 @@
   "explorerUrl": "https://explorer-studio-dev.genlayer.com",
   "contractAddress": "0xa54f3AD3dDfCce094DD3bC2144070e5a7A6d0F41",
   "deploymentTransaction": "0xf25dd253357ab44a4c4f9a457ae5d930d2fb7bd260e5b1b217273263ea4067e3",
-  "reviewedContractCommit": "50f129a",
+  "reviewedContractCommit": "ea2259af6ddcf29df4b6f01d93e41dacdf52d0a6",
   "contractSourceSha256": "4ccfb93929a0342dded6aa5ff10c5d3d1693cd71e31fddf467322bd7ada98868",
   "sourceMatch": true,
   "publicSite": "https://blind-batch.pages.dev",
   "liveDemo": {
-    "roundId": "blind-demo-mv2iweal",
-    "createTransaction": "0xada08b3df79820110257d68c7f87121da4d2ee776e06aa25bd1e95a8abca95ab",
-    "screeningTransaction": "0xd31c81a83d929549c2aaf26b46384a01dbef14eb5a2bd0f7ba68befc5e199e5d",
+    "roundId": "blind-demo-mv2jojwr",
+    "createTransaction": "0xdd6304dcbbd7badf32442a42747d6a9ec53aceaee4adde788f24e243050dac6a",
+    "screeningTransaction": "0x595abdce94284a1b0963548d63162c0180668ab36c5ea8bb90f4f2edc8be9e4d",
     "finalState": "COMMIT",
     "admitted": ["alpha", "beta"]
   }

@@ -20,7 +20,7 @@ const DEMO = { id: "public-goods-demo", title: "Open systems microgrants", owner
 function randomSalt() { const bytes = crypto.getRandomValues(new Uint8Array(18)); return [...bytes].map(value => value.toString(16).padStart(2, "0")).join(""); }
 
 function App() {
-  const [roundId, setRoundId] = useState("blind-demo-mv2iweal");
+  const [roundId, setRoundId] = useState("blind-demo-mv2jojwr");
   const [title, setTitle] = useState("Open systems microgrants");
   const [purpose, setPurpose] = useState("Screen public-goods proposals against minimum delivery gates, then rank the admitted batch with sealed juror preferences.");
   const [rubricUrl, setRubricUrl] = useState("https://example.org/rubric");

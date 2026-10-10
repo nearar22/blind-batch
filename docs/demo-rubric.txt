@@ -1,0 +1,3 @@
+BLINDBATCH DEMONSTRATION RUBRIC
+
+Every proposal must include a working public prototype and a maintenance plan covering at least twelve months. Projects must be open source before final selection. The proposal must explain a concrete public benefit and name a reproducible way for reviewers to verify the prototype. This operator-created fixture demonstrates rubric-bound screening and is not an independent grant program.

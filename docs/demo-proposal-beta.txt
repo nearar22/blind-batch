@@ -1,0 +1,3 @@
+BLINDBATCH DEMONSTRATION PROPOSAL — BETA
+
+Beta publishes a working public prototype with a deterministic verification walkthrough. The complete source is available under the Apache-2.0 license. Its maintenance plan covers twelve months after launch, and the project helps community groups coordinate emergency supplies as its concrete public benefit. This page is an operator-created test fixture.

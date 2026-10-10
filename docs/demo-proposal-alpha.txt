@@ -1,0 +1,3 @@
+BLINDBATCH DEMONSTRATION PROPOSAL — ALPHA
+
+Alpha has a working public prototype that reviewers can reproduce from the published setup guide. The complete repository is open source under the MIT license. The maintenance plan covers eighteen months after launch, and the project provides offline access to municipal service information as its concrete public benefit. This page is an operator-created test fixture.
